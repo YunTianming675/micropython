@@ -21,3 +21,6 @@ JLinkLog.log
 
 # local config
 local.mk
+
+# others
+DNRA8P1/analyza_result

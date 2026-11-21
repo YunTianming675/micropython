@@ -1,2 +1,9 @@
+# These files in .settings don't need to be synchronized with Git
 gcc_freertos/_CPU0/.settings/language.settings.xml
 gcc_freertos/_CPU1/.settings/language.settings.xml
+
+# These files need to be synchronized with Git, otherwise when other people clone this repository,
+# they can't generate CPU1 project
+!gcc_freertos/_CPU0/Debug/
+gcc_freertos/_CPU0/Debug/*
+!gcc_freertos/_CPU0/Debug/mp_gcc_freertos_CPU0.sbd

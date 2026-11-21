@@ -42,4 +42,11 @@
 		<nature>com.renesas.cdt.managedbuild.jsoncdb.compilationdatabase.CompileCommandsNature</nature>
 		<nature>com.renesas.cdt.ra.contentgen.raNature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>share</name>
+			<type>2</type>
+			<locationURI>$%7BPARENT-2-PROJECT_LOC%7D/share</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>
