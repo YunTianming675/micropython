@@ -112,3 +112,15 @@ CFLAGS += -g
 CFLAGS += $(INC)
 
 # ---------- Linker flags ----------
+ifeq ($(MCU_SERIES_CPU0),m85)
+LDFLAGS += -mthumb -mfloat-abi=hard -mcpu=cortex-m85+nopacbti
+endif
+
+LDFLAGS += -T $(__FSP_LD_SCRIPT)
+LD_SEARCH_DIRS = $(sort $(__FSP_PROJECT_DIR)/Debug $(__FSP_PROJECT_DIR)/script)
+LDFLAGS += $(addprefix -L,$(LD_SEARCH_DIRS))
+LDFLAGS += -Wl,-Map=$@.map -Wl,--cref -Wl,--gc-sections
+LDFLAGS += --specs=nano.specs
+
+# Libraries in --start-group/--end-group (same as e2studio)
+LIBS = -Wl,--start-group -lgcc -lm -lc -Wl,--end-group
