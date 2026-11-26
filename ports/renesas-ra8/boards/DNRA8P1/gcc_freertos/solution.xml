@@ -402,7 +402,9 @@
   <raPartitions>
     <memory Pname="CPU0" name="RAM_NS_CPU0_N" offset="0x1D4000" parent="RAM_NS" security="n" size="0x0"/>
     <memory Pname="CPU1" name="RAM_NS_CPU1_N" offset="0x1D4000" parent="RAM_NS" security="n" size="0x0"/>
-    <memory Pname="CPU0" name="RAM_CPU0_S" offset="0x0" parent="RAM" security="s" size="0x1B4000"/>
+    <memory Pname="CPU0" name="RAM_CPU0_S" offset="0x0" parent="RAM" security="s" size="0x1AFF50"/>
+    <memory Pname="CPU0" name="RTT_CONTROL_BLOCK" offset="0x1AFF50" parent="RAM" security="s" size="0xB0" userDefined="true"/>
+    <memory Pname="CPU0" name="RTT_SHARE" offset="0x1B0000" parent="RAM" security="s" size="0x4000" userDefined="true"/>
     <memory Pname="CPU0" name="RAM_CPU0_C" offset="0x1B4000" parent="RAM" security="c" size="0x0"/>
     <memory Pname="CPU1" name="RAM_CPU1_S" offset="0x1B4000" parent="RAM" security="s" size="0x20000"/>
     <memory Pname="CPU1" name="RAM_CPU1_C" offset="0x1D4000" parent="RAM" security="c" size="0x0"/>

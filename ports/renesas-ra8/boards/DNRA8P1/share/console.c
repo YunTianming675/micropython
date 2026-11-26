@@ -493,9 +493,12 @@ int _read(int fd, char *pBuffer, int size)
 int _write(int fd, char *pBuffer, int size)
 {
 	(void)fd;
+	(void)size;
 
 #if CONSOLE_CFG_USE_RTT
-    SEGGER_RTT_Write(CONSOLE_CFG_RTT_INDEX, pBuffer, (unsigned)size);
+	if (size > 0) {
+		SEGGER_RTT_Write(CONSOLE_CFG_RTT_INDEX, pBuffer, (unsigned)size);
+	}
 #elif CONSOLE_CFG_USE_UART
     sci_b_uart_instance_ctrl_t *ctrl = (sci_b_uart_instance_ctrl_t *)CONSOLE_CFG_UART_INSTANCE.p_ctrl;
     for (int i = 0; i < size; i++) {

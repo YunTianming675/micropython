@@ -48,5 +48,10 @@
 			<type>2</type>
 			<locationURI>$%7BPARENT-2-PROJECT_LOC%7D/share</locationURI>
 		</link>
+		<link>
+			<name>third</name>
+			<type>2</type>
+			<locationURI>$%7BPARENT-4-PROJECT_LOC%7D/third</locationURI>
+		</link>
 	</linkedResources>
 </projectDescription>

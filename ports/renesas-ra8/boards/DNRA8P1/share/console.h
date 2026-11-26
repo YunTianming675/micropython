@@ -93,7 +93,7 @@ void CONSOLE_Init(void);
 #include "SEGGER_RTT/SEGGER_RTT.h"
 
 #define CONSOLE_HasData				SEGGER_RTT_HasKey
-#define CONSOLE_Read(buffer, size)	SEGGER_RTT_Read(CONSOLE_CFG_RTT_INDEX, buffer, size)
+#define CONSOLE_Read(buffer, size)	SEGGER_RTT_Read(0, buffer, size)
 
 #else
 
