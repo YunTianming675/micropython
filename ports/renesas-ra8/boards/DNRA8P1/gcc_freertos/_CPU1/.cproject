@@ -98,9 +98,6 @@
 									<listOptionValue builtIn="false" value="STRCAT(x)=#x"/>
 									<listOptionValue builtIn="false" value="SEGGER_RTT_SECTION=STRCAT(.rtt_control_block)"/>
 									<listOptionValue builtIn="false" value="SEGGER_RTT_BUFFER_SECTION=STRCAT(.bss.rtt_share)"/>
-									<listOptionValue builtIn="false" value="CONSOLE_CFG_RTT_DUAL_CORE=1"/>
-									<listOptionValue builtIn="false" value="LOG_CFG_EN_SEGGER_RTT=1"/>
-									<listOptionValue builtIn="false" value="LOG_CFG_RTT_CHANNEL=1"/>
 								</option>
 								<option IS_BUILTIN_EMPTY="false" IS_VALUE_EMPTY="false" id="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths.431763312" name="Include paths (-I)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.c.compiler.include.paths" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/ra_cfg/fsp_cfg/bsp}&quot;"/>
@@ -599,6 +596,13 @@
 		</scannerConfigBuildInfo>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
-	<storageModule moduleId="refreshScope"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="Debug">
+			<resource resourceType="PROJECT" workspacePath="/mp_gcc_freertos_CPU1"/>
+		</configuration>
+		<configuration configurationName="Release">
+			<resource resourceType="PROJECT" workspacePath="/mp_gcc_freertos_CPU1"/>
+		</configuration>
+	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 </cproject>

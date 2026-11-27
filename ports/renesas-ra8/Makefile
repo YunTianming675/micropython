@@ -23,9 +23,11 @@ BOARD_DIR = boards/$(BOARD)
 include $(BOARD_DIR)/mpconfigboard.mk
 
 ifeq ($(FSP_IS_DUAL_CORE_PROJECT),true)
-BUILD = build-$(BOARD)_CPU0
+BUILD = build-$(BOARD)/CPU0
+FIRMWARE_NAME = firmware_cpu0
 else
 BUILD = build-$(BOARD)
+FIRMWARE_NAME = firmware
 endif
 
 # This makefile only make CPU0 project if it's dual core project, because only CPU0 running MicroPython
@@ -56,9 +58,13 @@ else
 FSP_SRC_C := $(shell find $(FSP_SRC_DIRS) -type f -name '*.c' 2>/dev/null)
 endif
 
+# FSP files
 SRC_C := $(FSP_SRC_C)
+# share folder files
 SRC_C += $(BOARD_DIR)/share/console.c
-# drivers source files
+# third folder files
+SRC_C += third/SEGGER_RTT/SEGGER_RTT_printf.c
+SRC_C += third/SEGGER_RTT/SEGGER_RTT.c
 
 # MicroPython source files
 
@@ -66,6 +72,7 @@ SRC_C += $(BOARD_DIR)/share/console.c
 INC += -I$(TOP)
 INC += -I$(BUILD)
 INC += -I$(BOARD_DIR)/share
+INC += -Ithird
 INC += -I$(__FSP_PROJECT_DIR)/Debug
 INC += -I$(__FSP_PROJECT_DIR)/ra/arm/CMSIS_6/CMSIS/Core/Include
 INC += -I$(__FSP_PROJECT_DIR)/ra/aws/FreeRTOS/FreeRTOS/Source/include
@@ -150,21 +157,21 @@ $(BUILD)/%.o: %.c Makefile $(BOARD_DIR)/mpconfigboard.mk $(wildcard local.mk)
 
 # ---------- Firmware targets ----------
 
-all: $(BUILD)/firmware.elf $(BUILD)/firmware.hex $(BUILD)/firmware.bin
+all: $(BUILD)/$(FIRMWARE_NAME).elf $(BUILD)/$(FIRMWARE_NAME).hex $(BUILD)/$(FIRMWARE_NAME).bin
 
 FSP_LD_INPUTS := $(__FSP_LD_SCRIPT) $(addprefix $(__FSP_PROJECT_DIR)/Debug/,memory_regions.ld fsp_gen.ld)
-$(BUILD)/firmware.elf: $(OBJ) $(FSP_LD_INPUTS)
+$(BUILD)/$(FIRMWARE_NAME).elf: $(OBJ) $(FSP_LD_INPUTS)
 	$(ECHO) "LINK $@"
 	$(file >$@.in,$(LDFLAGS) -o $@ $(OBJ) $(LIBS))
 	$(Q)$(CC) @"$@.in"
 	$(Q)$(SIZE) $@
 
 # Binary and hex outputs
-$(BUILD)/firmware.bin: $(BUILD)/firmware.elf
+$(BUILD)/$(FIRMWARE_NAME).bin: $(BUILD)/$(FIRMWARE_NAME).elf
 	$(Q)$(OBJCOPY) -O binary $^ $@
 
-$(BUILD)/firmware.hex: $(BUILD)/firmware.elf
+$(BUILD)/$(FIRMWARE_NAME).hex: $(BUILD)/$(FIRMWARE_NAME).elf
 	$(Q)$(OBJCOPY) -O ihex $^ $@
 
 .PHONY: hex
-hex: $(BUILD)/firmware.hex
+hex: $(BUILD)/$(FIRMWARE_NAME).hex
