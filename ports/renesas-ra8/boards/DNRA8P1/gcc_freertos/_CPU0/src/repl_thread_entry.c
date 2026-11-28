@@ -7,7 +7,7 @@
 #include "SEGGER_RTT/SEGGER_RTT.h"
 #include "utils/log.h"
 
-static uint8_t s_cpu1_up_buffer[SEGGER_UP_BUFFER_1_SIZE] __attribute__((section(".segger_share")));
+static uint8_t s_cpu1_up_buffer[SEGGER_UP_BUFFER_1_SIZE] __attribute__((section(".rtt_share")));
 
 void repl_thread_entry(void *pvParameters)
 {

@@ -31,7 +31,7 @@ endif
 SRC_C := $(FSP_SRC_C)
 # share folder files
 SRC_C += $(BOARD_DIR)/share/console.c
-SRC_C += $(BOARD_DIR)/share/log.c
+SRC_C += $(BOARD_DIR)/share/utils/log.c
 # third folder files
 SRC_C += third/SEGGER_RTT/SEGGER_RTT_printf.c
 SRC_C += third/SEGGER_RTT/SEGGER_RTT.c
@@ -67,8 +67,8 @@ CFLAGS += -fsigned-char
 CFLAGS += -std=gnu99
 CFLAGS += --param=min-pagesize=0
 
-ifeq ($(MCU_SERIES_CPU0),m33)
-CFLAGS += -mcpu=cortex-m33 -mfloat-abi=hard -mfpu=fpv5-sp-d16 -mthumb
+ifeq ($(MCU_SERIES_CPU1),m33)
+CFLAGS += -mcpu=cortex-m33 -mthumb -mfloat-abi=hard -mfpu=fpv5-sp-d16
 endif
 
 # Warning flags
@@ -86,9 +86,8 @@ CFLAGS += -D_RA_ORDINAL=2
 CFLAGS += -D_RA_PRIMARY_CORE=CPU0
 CFLAGS += -DCONSOLE_CFG_USE_RTT=1
 CFLAGS += -DCONSOLE_CFG_RTT_INDEX=1
-CFLAGS += -DSTRCAT(x)=#x
-CFLAGS += -DSEGGER_RTT_BUFFER_SECTION=STRCAT(.bss.rtt_share)
-CFLAGS += -DSEGGER_RTT_SECTION=STRCAT(.rtt_control_block)
+CFLAGS += -DSEGGER_RTT_BUFFER_SECTION=\".bss.rtt_share\"
+CFLAGS += -DSEGGER_RTT_SECTION=\".rtt_control_block\"
 
 # Optimization
 CFLAGS += -O2 -DNDEBUG
@@ -96,3 +95,48 @@ CFLAGS += -g
 
 # Last, plus include path
 CFLAGS += $(INC)
+
+# ---------- Linker flags ----------
+LDFLAGS += -mcpu=cortex-m33 -mthumb -mfloat-abi=hard -mfpu=fpv5-sp-d16
+
+LD_SEARCH_DIRS = $(sort $(__FSP_PROJECT_DIR)/Debug $(__FSP_PROJECT_DIR)/script)
+LDFLAGS += $(addprefix -L,$(LD_SEARCH_DIRS))
+LDFLAGS += -T $(__FSP_LD_SCRIPT)
+LDFLAGS += -Wl,-Map=$@.map -Wl,--cref -Wl,--gc-sections
+LDFLAGS += --specs=nano.specs
+
+# ---------- Object files ----------
+PORT_OBJ = $(addprefix $(BUILD)/, $(SRC_C:.c=.o))
+OBJ += $(PORT_OBJ)
+
+# Suppress warnings for the FreeRTOS kernel and its Renesas port.
+THIRT_SRC_C = $(filter $(__FSP_PROJECT_DIR)/ra/aws/FreeRTOS/% $(__FSP_PROJECT_DIR)/ra/fsp/src/rm_freertos_port/%,$(SRC_C))
+THIRT_OBJ = $(addprefix $(BUILD)/,$(THIRT_SRC_C:.c=.o))
+$(THIRT_OBJ): CFLAGS += -w
+
+$(BUILD)/%.o: %.c make_cpu1.mk $(BOARD_DIR)/mpconfigboard.mk
+	$(ECHO) "CC $<"
+	$(Q)$(MKDIR) -p "$(@D)"
+	$(Q)$(CC) $(CFLAGS) -MMD -MP -c "$<" -o "$@"
+
+-include $(OBJ:.o=.d)
+
+# ---------- Firmware targets ----------
+all: $(BUILD)/$(FIRMWARE_NAME).elf $(BUILD)/$(FIRMWARE_NAME).hex $(BUILD)/$(FIRMWARE_NAME).bin
+
+FSP_LD_INPUTS := $(__FSP_LD_SCRIPT) $(addprefix $(__FSP_PROJECT_DIR)/Debug/,memory_regions.ld fsp_gen.ld)
+$(BUILD)/$(FIRMWARE_NAME).elf: $(OBJ) $(FSP_LD_INPUTS)
+	$(ECHO) "LINK $@"
+	$(file >$@.in,$(LDFLAGS) -o $@ $(OBJ) $(LIBS))
+	$(Q)$(CC) @"$@.in"
+	$(Q)$(SIZE) $@
+
+# Binary and hex outputs
+$(BUILD)/$(FIRMWARE_NAME).bin: $(BUILD)/$(FIRMWARE_NAME).elf
+	$(Q)$(OBJCOPY) -O binary $^ $@
+
+$(BUILD)/$(FIRMWARE_NAME).hex: $(BUILD)/$(FIRMWARE_NAME).elf
+	$(Q)$(OBJCOPY) -O ihex $^ $@
+
+.PHONY: hex
+hex: $(BUILD)/$(FIRMWARE_NAME).hex

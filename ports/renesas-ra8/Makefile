@@ -91,13 +91,13 @@ INC += -I$(__FSP_PROJECT_DIR)/ra_gen
 INC += -I$(__FSP_PROJECT_DIR)/src
 
 # ---------- Compiler flags ----------
-CFLAGS += -std=gnu99
 CFLAGS += -fdata-sections
 CFLAGS += -ffunction-sections
 CFLAGS += -flax-vector-conversions
 CFLAGS += -fmessage-length=0
 CFLAGS += -fno-strict-aliasing
 CFLAGS += -fsigned-char
+CFLAGS += -std=gnu99
 CFLAGS += --param=min-pagesize=0
 
 # Special flags depends on platform
@@ -117,7 +117,12 @@ CFLAGS += -Wno-stringop-overflow
 CFLAGS += -D_RA_CORE=CPU0
 CFLAGS += -D_RA_ORDINAL=1
 CFLAGS += -D_RENESAS_RA_
+CFLAGS += -DBUFFER_SIZE_UP=8000
 CFLAGS += -DCONSOLE_CFG_USE_UART=1
+CFLAGS += -DLOG_CFG_HAS_STDIO=0
+CFLAGS += -DLOG_CFG_EN_SEGGER_RTT=1
+CFLAGS += -DSEGGER_RTT_SECTION=\".rtt_control_block\"
+CFLAGS += -DSEGGER_RTT_BUFFER_SECTION=\".rtt_share\"
 
 # Optimization
 CFLAGS += -O2 -DNDEBUG
@@ -158,6 +163,14 @@ $(BUILD)/%.o: %.c Makefile $(BOARD_DIR)/mpconfigboard.mk $(wildcard local.mk)
 # ---------- Firmware targets ----------
 
 all: $(BUILD)/$(FIRMWARE_NAME).elf $(BUILD)/$(FIRMWARE_NAME).hex $(BUILD)/$(FIRMWARE_NAME).bin
+
+ifeq ($(FSP_IS_DUAL_CORE_PROJECT),true)
+all: cpu1
+
+.PHONY: cpu1
+cpu1:
+	$(Q)$(MAKE) -f make_cpu1.mk BOARD="$(BOARD)" CROSS_COMPILE="$(CROSS_COMPILE)" all
+endif
 
 FSP_LD_INPUTS := $(__FSP_LD_SCRIPT) $(addprefix $(__FSP_PROJECT_DIR)/Debug/,memory_regions.ld fsp_gen.ld)
 $(BUILD)/$(FIRMWARE_NAME).elf: $(OBJ) $(FSP_LD_INPUTS)
