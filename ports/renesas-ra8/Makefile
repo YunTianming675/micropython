@@ -60,6 +60,8 @@ endif
 
 # FSP files
 SRC_C := $(FSP_SRC_C)
+# Our implement files
+SRC_C += source/mphalport.c
 # share folder files
 SRC_C += $(BOARD_DIR)/share/console.c
 # third folder files
@@ -237,6 +239,14 @@ $(BUILD)/$(FIRMWARE_NAME).hex: $(BUILD)/$(FIRMWARE_NAME).elf
 
 .PHONY: hex
 hex: $(BUILD)/$(FIRMWARE_NAME).hex
+
+# ---------- Generate compile_commands.json ----------
+# Require python package: compiledb
+.PHONY: gencdb
+gencdb:
+	compiledb -n make BOARD=$(BOARD)
+	mkdir -p $(BUILD)
+	mv compile_commands.json $(BUILD)
 
 # Include MicroPython standard rules
 include $(TOP)/py/mkrules.mk

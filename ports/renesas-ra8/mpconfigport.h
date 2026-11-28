@@ -8,6 +8,7 @@
 #ifndef __MPCONFIGPORT_H
 #define __MPCONFIGPORT_H
 
+#include <alloca.h>
 #include "mpconfigboard.h"
 
 #ifndef MP_STATE_PORT
