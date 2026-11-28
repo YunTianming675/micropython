@@ -40,10 +40,10 @@ __FSP_LD_SCRIPT = $(FSP_LD_SCRIPT)
 endif
 
 # qstr definitions, we decide let it depends on each board, rather than this port
-# QSTR_DEFS = $(__FSP_PROJECT_DIR)/src/qstrdefsport.h
+QSTR_DEFS = $(__FSP_PROJECT_DIR)/src/qstrdefsport.h
 
 # Enable the core definitions when integrating MicroPython.
-# include $(TOP)/py/py.mk
+include $(TOP)/py/py.mk
 
 # ---------- Source files ----------
 FSP_SRC_DIRS := $(__FSP_PROJECT_DIR)/ra $(__FSP_PROJECT_DIR)/ra_cfg $(__FSP_PROJECT_DIR)/ra_gen $(__FSP_PROJECT_DIR)/src
@@ -67,12 +67,41 @@ SRC_C += third/SEGGER_RTT/SEGGER_RTT_printf.c
 SRC_C += third/SEGGER_RTT/SEGGER_RTT.c
 
 # MicroPython source files
+SRC_C += extmod/machine_mem.c
+SRC_C += extmod/modbinascii.c
+SRC_C += extmod/modhashlib.c
+SRC_C += extmod/modheapq.c
+SRC_C += extmod/modjson.c
+SRC_C += extmod/modmachine.c
+SRC_C += extmod/modmarshal.c
+SRC_C += extmod/modos.c
+SRC_C += extmod/modplatform.c
+SRC_C += extmod/modrandom.c
+SRC_C += extmod/modre.c
+SRC_C += extmod/modtime.c
+SRC_C += extmod/moductypes.c
+SRC_C += extmod/modvfs.c
+SRC_C += extmod/vfs.c
+SRC_C += extmod/vfs_blockdev.c
+SRC_C += extmod/vfs_fat.c
+SRC_C += extmod/vfs_fat_diskio.c
+SRC_C += extmod/vfs_fat_file.c
+SRC_C += extmod/vfs_lfs.c
+SRC_C += extmod/vfs_reader.c
+SRC_C += shared/timeutils/timeutils.c
+SRC_C += shared/readline/readline.c
+SRC_C += shared/runtime/gchelper_generic.c
+SRC_C += shared/runtime/mpirq.c
+SRC_C += shared/runtime/pyexec.c
+SRC_C += shared/runtime/sys_stdio_mphal.c
 
 # ---------- Include paths ----------
+INC += -I.
+INC += -Isource
+INC += -Ithird
 INC += -I$(TOP)
 INC += -I$(BUILD)
 INC += -I$(BOARD_DIR)/share
-INC += -Ithird
 INC += -I$(__FSP_PROJECT_DIR)/Debug
 INC += -I$(__FSP_PROJECT_DIR)/ra/arm/CMSIS_6/CMSIS/Core/Include
 INC += -I$(__FSP_PROJECT_DIR)/ra/aws/FreeRTOS/FreeRTOS/Source/include
@@ -142,23 +171,43 @@ LDFLAGS += -T $(__FSP_LD_SCRIPT)
 LDFLAGS += -Wl,-Map=$@.map -Wl,--cref -Wl,--gc-sections
 LDFLAGS += --specs=nano.specs
 
+# ---------- QSTR sources (for string interning) ----------
+SRC_QSTR += extmod/machine_mem.c
+SRC_QSTR += extmod/modbinascii.c
+SRC_QSTR += extmod/modhashlib.c
+SRC_QSTR += extmod/modheapq.c
+SRC_QSTR += extmod/modjson.c
+SRC_QSTR += extmod/modmachine.c
+SRC_QSTR += extmod/modmarshal.c
+SRC_QSTR += extmod/modos.c
+SRC_QSTR += extmod/modplatform.c
+SRC_QSTR += extmod/modrandom.c
+SRC_QSTR += extmod/modre.c
+SRC_QSTR += extmod/modtime.c
+SRC_QSTR += extmod/moductypes.c
+SRC_QSTR += extmod/modvfs.c
+SRC_QSTR += extmod/vfs.c
+SRC_QSTR += extmod/vfs_reader.c
+SRC_QSTR += extmod/vfs_blockdev.c
+SRC_QSTR += extmod/vfs_fat.c
+SRC_QSTR += extmod/vfs_fat_diskio.c
+SRC_QSTR += extmod/vfs_fat_file.c
+SRC_QSTR += extmod/vfs_lfs.c
+SRC_QSTR += shared/readline/readline.c
+SRC_QSTR += shared/runtime/mpirq.c
+SRC_QSTR += shared/runtime/pyexec.c
+SRC_QSTR += shared/runtime/sys_stdio_mphal.c
+
 # ---------- Object files ----------
 PORT_OBJ = $(addprefix $(BUILD)/, $(SRC_C:.c=.o))
-# OBJ = $(PY_CORE_O)
+OBJ = $(PY_CORE_O)
 OBJ += $(PORT_OBJ)
-# OBJ += $(addprefix $(BUILD)/, $(SRC_O))
+OBJ += $(addprefix $(BUILD)/, $(SRC_O))
 
 # Suppress warnings for the FreeRTOS kernel and its Renesas port.
 THIRT_SRC_C = $(filter $(__FSP_PROJECT_DIR)/ra/aws/FreeRTOS/% $(__FSP_PROJECT_DIR)/ra/fsp/src/rm_freertos_port/%,$(SRC_C))
 THIRT_OBJ = $(addprefix $(BUILD)/,$(THIRT_SRC_C:.c=.o))
 $(THIRT_OBJ): CFLAGS += -w
-
-$(BUILD)/%.o: %.c Makefile $(BOARD_DIR)/mpconfigboard.mk $(wildcard local.mk)
-	$(ECHO) "CC $<"
-	$(Q)$(MKDIR) -p "$(@D)"
-	$(Q)$(CC) $(CFLAGS) -MMD -MP -c "$<" -o "$@"
-
--include $(OBJ:.o=.d)
 
 # ---------- Firmware targets ----------
 
@@ -188,3 +237,6 @@ $(BUILD)/$(FIRMWARE_NAME).hex: $(BUILD)/$(FIRMWARE_NAME).elf
 
 .PHONY: hex
 hex: $(BUILD)/$(FIRMWARE_NAME).hex
+
+# Include MicroPython standard rules
+include $(TOP)/py/mkrules.mk

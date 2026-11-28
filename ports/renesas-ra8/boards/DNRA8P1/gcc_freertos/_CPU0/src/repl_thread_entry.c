@@ -2,7 +2,10 @@
 
 #include "common.h"
 #include "console.h"
+#include "mpconfigport.h"
 #include "repl_thread.h"
+
+#include "py/builtin.h"
 
 #include "SEGGER_RTT/SEGGER_RTT.h"
 #include "utils/log.h"
